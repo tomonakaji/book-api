@@ -3,7 +3,9 @@ package com.tomonakaji.book_api.author
 import com.tomonakaji.book_api.author.dto.AuthorResponse
 import com.tomonakaji.book_api.author.dto.CreateAuthorRequest
 import com.tomonakaji.book_api.author.dto.UpdateAuthorRequest
+import com.tomonakaji.book_api.book.dto.BookResponse
 import jakarta.validation.Valid
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
@@ -28,4 +30,8 @@ class AuthorController(
         @PathVariable authorId: Int,
         @Valid @RequestBody request: UpdateAuthorRequest,
     ): AuthorResponse = authorService.update(authorId, request)
+
+    @GetMapping("/{authorId}/books")
+    fun findBooksByAuthor(@PathVariable authorId: Int): List<BookResponse> =
+        authorService.findBooksByAuthor(authorId)
 }
