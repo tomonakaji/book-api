@@ -2,9 +2,12 @@ package com.tomonakaji.book_api.book
 
 import com.tomonakaji.book_api.book.dto.BookResponse
 import com.tomonakaji.book_api.book.dto.CreateBookRequest
+import com.tomonakaji.book_api.book.dto.UpdateBookRequest
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseStatus
@@ -19,4 +22,10 @@ class BookController(
     @ResponseStatus(HttpStatus.CREATED)
     fun create(@Valid @RequestBody request: CreateBookRequest): BookResponse =
         bookService.create(request)
+
+    @PutMapping("/{bookId}")
+    fun update(
+        @PathVariable bookId: Int,
+        @Valid @RequestBody request: UpdateBookRequest,
+    ): BookResponse = bookService.update(bookId, request)
 }
