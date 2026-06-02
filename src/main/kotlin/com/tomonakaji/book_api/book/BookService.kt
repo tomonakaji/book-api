@@ -27,8 +27,7 @@ class BookService(
             .set(BOOKS.PRICE, request.price)
             .set(BOOKS.PUBLICATION_STATUS, request.publicationStatus.name)
             .returning(BOOKS.ID, BOOKS.TITLE, BOOKS.PRICE, BOOKS.PUBLICATION_STATUS)
-            .fetchOne()
-            ?: throw IllegalStateException("Failed to create book")
+            .fetchOne() ?: throw IllegalStateException("failed to create book")
 
         authorIds.forEach { authorId ->
             dsl.insertInto(BOOK_AUTHORS)
@@ -55,8 +54,7 @@ class BookService(
         val currentBook = dsl.select(BOOKS.PUBLICATION_STATUS)
             .from(BOOKS)
             .where(BOOKS.ID.eq(bookId))
-            .fetchOne()
-            ?: throw NotFoundException("book not found: id=$bookId")
+            .fetchOne() ?: throw NotFoundException("book not found: $bookId")
 
         validatePublicationStatusTransition(
             currentStatus = PublicationStatus.valueOf(currentBook.get(BOOKS.PUBLICATION_STATUS)!!),
@@ -69,8 +67,7 @@ class BookService(
             .set(BOOKS.PUBLICATION_STATUS, request.publicationStatus.name)
             .where(BOOKS.ID.eq(bookId))
             .returning(BOOKS.ID, BOOKS.TITLE, BOOKS.PRICE, BOOKS.PUBLICATION_STATUS)
-            .fetchOne()
-            ?: throw IllegalStateException("Failed to update book")
+            .fetchOne() ?: throw IllegalStateException("failed to update book")
 
         dsl.deleteFrom(BOOK_AUTHORS)
             .where(BOOK_AUTHORS.BOOK_ID.eq(bookId))
@@ -94,7 +91,7 @@ class BookService(
 
     private fun validateAuthorIds(rawAuthorIds: List<Int>, distinctAuthorIds: List<Int>) {
         if (rawAuthorIds.size != distinctAuthorIds.size) {
-            throw BusinessRuleException("authorIds must not contain duplicates")
+            throw BusinessRuleException("duplicate authorIds")
         }
     }
 
@@ -106,7 +103,7 @@ class BookService(
 
         if (existingAuthorIds.size != authorIds.size) {
             val missingAuthorIds = authorIds - existingAuthorIds.toSet()
-            throw BusinessRuleException("authors not found: ids=$missingAuthorIds")
+            throw BusinessRuleException("authors not found: $missingAuthorIds")
         }
     }
 
@@ -115,7 +112,7 @@ class BookService(
         nextStatus: PublicationStatus,
     ) {
         if (currentStatus == PublicationStatus.PUBLISHED && nextStatus == PublicationStatus.UNPUBLISHED) {
-            throw BusinessRuleException("published book cannot be changed to unpublished")
+            throw BusinessRuleException("invalid publication status transition")
         }
     }
 }

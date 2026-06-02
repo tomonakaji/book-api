@@ -21,8 +21,7 @@ class AuthorService(
             .set(AUTHORS.NAME, request.name.trim())
             .set(AUTHORS.BIRTH_DATE, request.birthDate)
             .returning(AUTHORS.ID, AUTHORS.NAME, AUTHORS.BIRTH_DATE)
-            .fetchOne()
-            ?: throw IllegalStateException("Failed to create author")
+            .fetchOne() ?: throw IllegalStateException("failed to create author")
 
         return AuthorResponse(
             id = createdAuthor.get(AUTHORS.ID)!!,
@@ -37,8 +36,7 @@ class AuthorService(
             .set(AUTHORS.BIRTH_DATE, request.birthDate)
             .where(AUTHORS.ID.eq(authorId))
             .returning(AUTHORS.ID, AUTHORS.NAME, AUTHORS.BIRTH_DATE)
-            .fetchOne()
-            ?: throw NotFoundException("author not found: id=$authorId")
+            .fetchOne() ?: throw NotFoundException("author not found: $authorId")
 
         return AuthorResponse(
             id = updatedAuthor.get(AUTHORS.ID)!!,
@@ -90,7 +88,7 @@ class AuthorService(
         )
 
         if (!authorExists) {
-            throw NotFoundException("author not found: id=$authorId")
+            throw NotFoundException("author not found: $authorId")
         }
     }
 }
