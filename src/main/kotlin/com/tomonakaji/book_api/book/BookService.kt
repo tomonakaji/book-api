@@ -22,15 +22,18 @@ class BookService(
         validateAuthorIds(request.authorIds, authorIds)
         validateAuthorsExist(authorIds)
 
-        val createdBook = dsl.insertInto(BOOKS)
-            .set(BOOKS.TITLE, request.title.trim())
-            .set(BOOKS.PRICE, request.price)
-            .set(BOOKS.PUBLICATION_STATUS, request.publicationStatus.name)
-            .returning(BOOKS.ID, BOOKS.TITLE, BOOKS.PRICE, BOOKS.PUBLICATION_STATUS)
-            .fetchOne() ?: throw IllegalStateException("failed to create book")
+        val createdBook =
+            dsl
+                .insertInto(BOOKS)
+                .set(BOOKS.TITLE, request.title.trim())
+                .set(BOOKS.PRICE, request.price)
+                .set(BOOKS.PUBLICATION_STATUS, request.publicationStatus.name)
+                .returning(BOOKS.ID, BOOKS.TITLE, BOOKS.PRICE, BOOKS.PUBLICATION_STATUS)
+                .fetchOne() ?: throw IllegalStateException("failed to create book")
 
         authorIds.forEach { authorId ->
-            dsl.insertInto(BOOK_AUTHORS)
+            dsl
+                .insertInto(BOOK_AUTHORS)
                 .set(BOOK_AUTHORS.BOOK_ID, createdBook.get(BOOKS.ID)!!)
                 .set(BOOK_AUTHORS.AUTHOR_ID, authorId)
                 .execute()
@@ -46,35 +49,44 @@ class BookService(
     }
 
     @Transactional
-    fun update(bookId: Int, request: UpdateBookRequest): BookResponse {
+    fun update(
+        bookId: Int,
+        request: UpdateBookRequest,
+    ): BookResponse {
         val authorIds = request.authorIds.distinct()
         validateAuthorIds(request.authorIds, authorIds)
         validateAuthorsExist(authorIds)
 
-        val currentBook = dsl.select(BOOKS.PUBLICATION_STATUS)
-            .from(BOOKS)
-            .where(BOOKS.ID.eq(bookId))
-            .fetchOne() ?: throw NotFoundException("book not found: $bookId")
+        val currentBook =
+            dsl
+                .select(BOOKS.PUBLICATION_STATUS)
+                .from(BOOKS)
+                .where(BOOKS.ID.eq(bookId))
+                .fetchOne() ?: throw NotFoundException("book not found: $bookId")
 
         validatePublicationStatusTransition(
             currentStatus = PublicationStatus.valueOf(currentBook.get(BOOKS.PUBLICATION_STATUS)!!),
             nextStatus = request.publicationStatus,
         )
 
-        val updatedBook = dsl.update(BOOKS)
-            .set(BOOKS.TITLE, request.title.trim())
-            .set(BOOKS.PRICE, request.price)
-            .set(BOOKS.PUBLICATION_STATUS, request.publicationStatus.name)
-            .where(BOOKS.ID.eq(bookId))
-            .returning(BOOKS.ID, BOOKS.TITLE, BOOKS.PRICE, BOOKS.PUBLICATION_STATUS)
-            .fetchOne() ?: throw IllegalStateException("failed to update book")
+        val updatedBook =
+            dsl
+                .update(BOOKS)
+                .set(BOOKS.TITLE, request.title.trim())
+                .set(BOOKS.PRICE, request.price)
+                .set(BOOKS.PUBLICATION_STATUS, request.publicationStatus.name)
+                .where(BOOKS.ID.eq(bookId))
+                .returning(BOOKS.ID, BOOKS.TITLE, BOOKS.PRICE, BOOKS.PUBLICATION_STATUS)
+                .fetchOne() ?: throw IllegalStateException("failed to update book")
 
-        dsl.deleteFrom(BOOK_AUTHORS)
+        dsl
+            .deleteFrom(BOOK_AUTHORS)
             .where(BOOK_AUTHORS.BOOK_ID.eq(bookId))
             .execute()
 
         authorIds.forEach { authorId ->
-            dsl.insertInto(BOOK_AUTHORS)
+            dsl
+                .insertInto(BOOK_AUTHORS)
                 .set(BOOK_AUTHORS.BOOK_ID, bookId)
                 .set(BOOK_AUTHORS.AUTHOR_ID, authorId)
                 .execute()
@@ -89,17 +101,22 @@ class BookService(
         )
     }
 
-    private fun validateAuthorIds(rawAuthorIds: List<Int>, distinctAuthorIds: List<Int>) {
+    private fun validateAuthorIds(
+        rawAuthorIds: List<Int>,
+        distinctAuthorIds: List<Int>,
+    ) {
         if (rawAuthorIds.size != distinctAuthorIds.size) {
             throw BusinessRuleException("duplicate authorIds")
         }
     }
 
     private fun validateAuthorsExist(authorIds: List<Int>) {
-        val existingAuthorIds = dsl.select(AUTHORS.ID)
-            .from(AUTHORS)
-            .where(AUTHORS.ID.`in`(authorIds))
-            .fetch(AUTHORS.ID)
+        val existingAuthorIds =
+            dsl
+                .select(AUTHORS.ID)
+                .from(AUTHORS)
+                .where(AUTHORS.ID.`in`(authorIds))
+                .fetch(AUTHORS.ID)
 
         if (existingAuthorIds.size != authorIds.size) {
             val missingAuthorIds = authorIds - existingAuthorIds.toSet()

@@ -4,6 +4,7 @@ plugins {
 	id 'org.springframework.boot' version '4.0.6'
 	id 'io.spring.dependency-management' version '1.1.7'
 	id 'org.jooq.jooq-codegen-gradle' version '3.19.34'
+	id 'org.jlleitschuh.gradle.ktlint' version '13.1.0'
 }
 
 group = 'com.tomonakaji'
@@ -14,6 +15,7 @@ def dbPort = System.getenv('BOOK_API_DB_PORT')
 def dbName = System.getenv('BOOK_API_DB_NAME')
 def dbUser = System.getenv('BOOK_API_DB_USER')
 def dbPassword = System.getenv('BOOK_API_DB_PASSWORD')
+def generatedSrcPath = layout.buildDirectory.dir('generated-src').get().asFile.path
 
 java {
 	toolchain {
@@ -64,6 +66,19 @@ kotlin {
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+ktlint {
+	verbose = true
+	outputToConsole = true
+	additionalEditorconfig = [
+		'ktlint_standard_package-name': 'disabled',
+	]
+	filter {
+		exclude { entry ->
+			entry.file.path.contains("${generatedSrcPath}/")
+		}
+	}
 }
 
 kotlin {

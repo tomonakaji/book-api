@@ -5,11 +5,11 @@ import com.tomonakaji.book_api.author.dto.CreateAuthorRequest
 import com.tomonakaji.book_api.author.dto.UpdateAuthorRequest
 import com.tomonakaji.book_api.book.dto.BookResponse
 import jakarta.validation.Valid
-import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.http.HttpStatus
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseStatus
@@ -22,8 +22,9 @@ class AuthorController(
 ) {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    fun create(@Valid @RequestBody request: CreateAuthorRequest): AuthorResponse =
-        authorService.create(request)
+    fun create(
+        @Valid @RequestBody request: CreateAuthorRequest,
+    ): AuthorResponse = authorService.create(request)
 
     @PutMapping("/{authorId}")
     fun update(
@@ -32,6 +33,7 @@ class AuthorController(
     ): AuthorResponse = authorService.update(authorId, request)
 
     @GetMapping("/{authorId}/books")
-    fun findBooksByAuthor(@PathVariable authorId: Int): List<BookResponse> =
-        authorService.findBooksByAuthor(authorId)
+    fun findBooksByAuthor(
+        @PathVariable authorId: Int,
+    ): List<BookResponse> = authorService.findBooksByAuthor(authorId)
 }

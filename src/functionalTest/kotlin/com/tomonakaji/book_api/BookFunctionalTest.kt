@@ -19,21 +19,21 @@ class BookFunctionalTest : FunctionalTestBase() {
         val firstAuthorId = insertAuthor(name = "Suzuki Taro", birthDate = LocalDate.parse("1990-06-19"))
         val secondAuthorId = insertAuthor(name = "Tanaka Jiro", birthDate = LocalDate.parse("1991-07-20"))
 
-        mockMvc.perform(
-            post("/v1/books")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(
-                    """
-                    {
-                      "title": "Momotaro",
-                      "price": 800,
-                      "authorIds": [$firstAuthorId, $secondAuthorId],
-                      "publicationStatus": "PUBLISHED"
-                    }
-                    """.trimIndent(),
-                ),
-        )
-            .andExpect(status().isCreated)
+        mockMvc
+            .perform(
+                post("/v1/books")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        """
+                        {
+                          "title": "Momotaro",
+                          "price": 800,
+                          "authorIds": [$firstAuthorId, $secondAuthorId],
+                          "publicationStatus": "PUBLISHED"
+                        }
+                        """.trimIndent(),
+                    ),
+            ).andExpect(status().isCreated)
             .andExpect(jsonPath("$.id").isNumber)
             .andExpect(jsonPath("$.title", equalTo("Momotaro")))
             .andExpect(jsonPath("$.price", equalTo(800)))
@@ -45,42 +45,42 @@ class BookFunctionalTest : FunctionalTestBase() {
     fun `異常系_POST_v1_books_authorIdsに重複があると400になる`() {
         val authorId = insertAuthor(name = "Suzuki Taro", birthDate = LocalDate.parse("1990-06-19"))
 
-        mockMvc.perform(
-            post("/v1/books")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(
-                    """
-                    {
-                      "title": "Momotaro",
-                      "price": 800,
-                      "authorIds": [$authorId, $authorId],
-                      "publicationStatus": "PUBLISHED"
-                    }
-                    """.trimIndent(),
-                ),
-        )
-            .andExpect(status().isBadRequest)
+        mockMvc
+            .perform(
+                post("/v1/books")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        """
+                        {
+                          "title": "Momotaro",
+                          "price": 800,
+                          "authorIds": [$authorId, $authorId],
+                          "publicationStatus": "PUBLISHED"
+                        }
+                        """.trimIndent(),
+                    ),
+            ).andExpect(status().isBadRequest)
     }
 
     @Test
     fun `異常系_POST_v1_books_存在しない著者IDが含まれると400になる`() {
         val authorId = insertAuthor(name = "Suzuki Taro", birthDate = LocalDate.parse("1990-06-19"))
 
-        mockMvc.perform(
-            post("/v1/books")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(
-                    """
-                    {
-                      "title": "Momotaro",
-                      "price": 800,
-                      "authorIds": [$authorId, 999999],
-                      "publicationStatus": "PUBLISHED"
-                    }
-                    """.trimIndent(),
-                ),
-        )
-            .andExpect(status().isBadRequest)
+        mockMvc
+            .perform(
+                post("/v1/books")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        """
+                        {
+                          "title": "Momotaro",
+                          "price": 800,
+                          "authorIds": [$authorId, 999999],
+                          "publicationStatus": "PUBLISHED"
+                        }
+                        """.trimIndent(),
+                    ),
+            ).andExpect(status().isBadRequest)
     }
 
     @Test
@@ -92,21 +92,21 @@ class BookFunctionalTest : FunctionalTestBase() {
         insertBookAuthor(bookId = bookId, authorId = firstAuthorId)
         insertBookAuthor(bookId = bookId, authorId = secondAuthorId)
 
-        mockMvc.perform(
-            put("/v1/books/$bookId")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(
-                    """
-                    {
-                      "title": "Kaguyahime",
-                      "price": 900,
-                      "authorIds": [$thirdAuthorId],
-                      "publicationStatus": "PUBLISHED"
-                    }
-                    """.trimIndent(),
-                ),
-        )
-            .andExpect(status().isOk)
+        mockMvc
+            .perform(
+                put("/v1/books/$bookId")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        """
+                        {
+                          "title": "Kaguyahime",
+                          "price": 900,
+                          "authorIds": [$thirdAuthorId],
+                          "publicationStatus": "PUBLISHED"
+                        }
+                        """.trimIndent(),
+                    ),
+            ).andExpect(status().isOk)
             .andExpect(jsonPath("$.id", equalTo(bookId)))
             .andExpect(jsonPath("$.title", equalTo("Kaguyahime")))
             .andExpect(jsonPath("$.price", equalTo(900)))
@@ -120,46 +120,50 @@ class BookFunctionalTest : FunctionalTestBase() {
         val bookId = insertBook(title = "Momotaro", price = 800, publicationStatus = "PUBLISHED")
         insertBookAuthor(bookId = bookId, authorId = authorId)
 
-        mockMvc.perform(
-            put("/v1/books/$bookId")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(
-                    """
-                    {
-                      "title": "Momotaro",
-                      "price": 800,
-                      "authorIds": [$authorId],
-                      "publicationStatus": "UNPUBLISHED"
-                    }
-                    """.trimIndent(),
-                ),
-        )
-            .andExpect(status().isBadRequest)
+        mockMvc
+            .perform(
+                put("/v1/books/$bookId")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        """
+                        {
+                          "title": "Momotaro",
+                          "price": 800,
+                          "authorIds": [$authorId],
+                          "publicationStatus": "UNPUBLISHED"
+                        }
+                        """.trimIndent(),
+                    ),
+            ).andExpect(status().isBadRequest)
     }
 
     @Test
     fun `異常系_PUT_v1_books_id_存在しない書籍IDは404になる`() {
         val authorId = insertAuthor(name = "Suzuki Taro", birthDate = LocalDate.parse("1990-06-19"))
 
-        mockMvc.perform(
-            put("/v1/books/999999")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(
-                    """
-                    {
-                      "title": "Momotaro",
-                      "price": 800,
-                      "authorIds": [$authorId],
-                      "publicationStatus": "PUBLISHED"
-                    }
-                    """.trimIndent(),
-                ),
-        )
-            .andExpect(status().isNotFound)
+        mockMvc
+            .perform(
+                put("/v1/books/999999")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        """
+                        {
+                          "title": "Momotaro",
+                          "price": 800,
+                          "authorIds": [$authorId],
+                          "publicationStatus": "PUBLISHED"
+                        }
+                        """.trimIndent(),
+                    ),
+            ).andExpect(status().isNotFound)
     }
 
-    private fun insertAuthor(name: String, birthDate: LocalDate): Int =
-        dsl.insertInto(AUTHORS)
+    private fun insertAuthor(
+        name: String,
+        birthDate: LocalDate,
+    ): Int =
+        dsl
+            .insertInto(AUTHORS)
             .set(AUTHORS.NAME, name)
             .set(AUTHORS.BIRTH_DATE, birthDate)
             .returning(AUTHORS.ID)
@@ -167,8 +171,13 @@ class BookFunctionalTest : FunctionalTestBase() {
             ?.get(AUTHORS.ID)
             ?: error("failed to insert author")
 
-    private fun insertBook(title: String, price: Int, publicationStatus: String): Int =
-        dsl.insertInto(BOOKS)
+    private fun insertBook(
+        title: String,
+        price: Int,
+        publicationStatus: String,
+    ): Int =
+        dsl
+            .insertInto(BOOKS)
             .set(BOOKS.TITLE, title)
             .set(BOOKS.PRICE, price)
             .set(BOOKS.PUBLICATION_STATUS, publicationStatus)
@@ -177,8 +186,12 @@ class BookFunctionalTest : FunctionalTestBase() {
             ?.get(BOOKS.ID)
             ?: error("failed to insert book")
 
-    private fun insertBookAuthor(bookId: Int, authorId: Int) {
-        dsl.insertInto(BOOK_AUTHORS)
+    private fun insertBookAuthor(
+        bookId: Int,
+        authorId: Int,
+    ) {
+        dsl
+            .insertInto(BOOK_AUTHORS)
             .set(BOOK_AUTHORS.BOOK_ID, bookId)
             .set(BOOK_AUTHORS.AUTHOR_ID, authorId)
             .execute()

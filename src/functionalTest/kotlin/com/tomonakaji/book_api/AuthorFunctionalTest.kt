@@ -17,19 +17,19 @@ import java.time.LocalDate
 class AuthorFunctionalTest : FunctionalTestBase() {
     @Test
     fun `正常系_POST_v1_authors_著者を登録できる`() {
-        mockMvc.perform(
-            post("/v1/authors")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(
-                    """
-                    {
-                      "name": "Suzuki Taro",
-                      "birthDate": "1990-06-19"
-                    }
-                    """.trimIndent(),
-                ),
-        )
-            .andExpect(status().isCreated)
+        mockMvc
+            .perform(
+                post("/v1/authors")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        """
+                        {
+                          "name": "Suzuki Taro",
+                          "birthDate": "1990-06-19"
+                        }
+                        """.trimIndent(),
+                    ),
+            ).andExpect(status().isCreated)
             .andExpect(jsonPath("$.id").isNumber)
             .andExpect(jsonPath("$.name", equalTo("Suzuki Taro")))
             .andExpect(jsonPath("$.birthDate", equalTo("1990-06-19")))
@@ -39,19 +39,19 @@ class AuthorFunctionalTest : FunctionalTestBase() {
     fun `正常系_POST_v1_authors_birthDateが今日なら登録できる`() {
         val today = LocalDate.now()
 
-        mockMvc.perform(
-            post("/v1/authors")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(
-                    """
-                    {
-                      "name": "Tanaka Jiro",
-                      "birthDate": "$today"
-                    }
-                    """.trimIndent(),
-                ),
-        )
-            .andExpect(status().isCreated)
+        mockMvc
+            .perform(
+                post("/v1/authors")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        """
+                        {
+                          "name": "Tanaka Jiro",
+                          "birthDate": "$today"
+                        }
+                        """.trimIndent(),
+                    ),
+            ).andExpect(status().isCreated)
             .andExpect(jsonPath("$.name", equalTo("Tanaka Jiro")))
             .andExpect(jsonPath("$.birthDate", equalTo(today.toString())))
     }
@@ -60,38 +60,38 @@ class AuthorFunctionalTest : FunctionalTestBase() {
     fun `異常系_POST_v1_authors_birthDateが明日なら400になる`() {
         val tomorrow = LocalDate.now().plusDays(1)
 
-        mockMvc.perform(
-            post("/v1/authors")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(
-                    """
-                    {
-                      "name": "Tanaka Jiro",
-                      "birthDate": "$tomorrow"
-                    }
-                    """.trimIndent(),
-                ),
-        )
-            .andExpect(status().isBadRequest)
+        mockMvc
+            .perform(
+                post("/v1/authors")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        """
+                        {
+                          "name": "Tanaka Jiro",
+                          "birthDate": "$tomorrow"
+                        }
+                        """.trimIndent(),
+                    ),
+            ).andExpect(status().isBadRequest)
     }
 
     @Test
     fun `正常系_PUT_v1_authors_id_著者を更新できる`() {
         val authorId = insertAuthor(name = "Suzuki Taro", birthDate = LocalDate.parse("1990-06-19"))
 
-        mockMvc.perform(
-            put("/v1/authors/$authorId")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(
-                    """
-                    {
-                      "name": "Tanaka Jiro",
-                      "birthDate": "1991-07-20"
-                    }
-                    """.trimIndent(),
-                ),
-        )
-            .andExpect(status().isOk)
+        mockMvc
+            .perform(
+                put("/v1/authors/$authorId")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        """
+                        {
+                          "name": "Tanaka Jiro",
+                          "birthDate": "1991-07-20"
+                        }
+                        """.trimIndent(),
+                    ),
+            ).andExpect(status().isOk)
             .andExpect(jsonPath("$.id", equalTo(authorId)))
             .andExpect(jsonPath("$.name", equalTo("Tanaka Jiro")))
             .andExpect(jsonPath("$.birthDate", equalTo("1991-07-20")))
@@ -99,19 +99,19 @@ class AuthorFunctionalTest : FunctionalTestBase() {
 
     @Test
     fun `異常系_PUT_v1_authors_id_存在しない著者IDは404になる`() {
-        mockMvc.perform(
-            put("/v1/authors/999999")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(
-                    """
-                    {
-                      "name": "Tanaka Jiro",
-                      "birthDate": "1991-07-20"
-                    }
-                    """.trimIndent(),
-                ),
-        )
-            .andExpect(status().isNotFound)
+        mockMvc
+            .perform(
+                put("/v1/authors/999999")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        """
+                        {
+                          "name": "Tanaka Jiro",
+                          "birthDate": "1991-07-20"
+                        }
+                        """.trimIndent(),
+                    ),
+            ).andExpect(status().isNotFound)
     }
 
     @Test
@@ -119,19 +119,19 @@ class AuthorFunctionalTest : FunctionalTestBase() {
         val authorId = insertAuthor(name = "Suzuki Taro", birthDate = LocalDate.parse("1990-06-19"))
         val tomorrow = LocalDate.now().plusDays(1)
 
-        mockMvc.perform(
-            put("/v1/authors/$authorId")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(
-                    """
-                    {
-                      "name": "Tanaka Jiro",
-                      "birthDate": "$tomorrow"
-                    }
-                    """.trimIndent(),
-                ),
-        )
-            .andExpect(status().isBadRequest)
+        mockMvc
+            .perform(
+                put("/v1/authors/$authorId")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        """
+                        {
+                          "name": "Tanaka Jiro",
+                          "birthDate": "$tomorrow"
+                        }
+                        """.trimIndent(),
+                    ),
+            ).andExpect(status().isBadRequest)
     }
 
     @Test
@@ -144,7 +144,8 @@ class AuthorFunctionalTest : FunctionalTestBase() {
         insertBookAuthor(bookId = firstBookId, authorId = coAuthorId)
         insertBookAuthor(bookId = secondBookId, authorId = authorId)
 
-        mockMvc.perform(get("/v1/authors/$authorId/books"))
+        mockMvc
+            .perform(get("/v1/authors/$authorId/books"))
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.length()", equalTo(2)))
             .andExpect(jsonPath("$[0].id", equalTo(firstBookId)))
@@ -163,19 +164,25 @@ class AuthorFunctionalTest : FunctionalTestBase() {
     fun `正常系_GET_v1_authors_id_books_書籍が0件なら空配列を返す`() {
         val authorId = insertAuthor(name = "Yamamoto Hanako", birthDate = LocalDate.parse("1992-08-21"))
 
-        mockMvc.perform(get("/v1/authors/$authorId/books"))
+        mockMvc
+            .perform(get("/v1/authors/$authorId/books"))
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.length()", equalTo(0)))
     }
 
     @Test
     fun `異常系_GET_v1_authors_id_books_存在しない著者IDは404になる`() {
-        mockMvc.perform(get("/v1/authors/999999/books"))
+        mockMvc
+            .perform(get("/v1/authors/999999/books"))
             .andExpect(status().isNotFound)
     }
 
-    private fun insertAuthor(name: String, birthDate: LocalDate): Int =
-        dsl.insertInto(AUTHORS)
+    private fun insertAuthor(
+        name: String,
+        birthDate: LocalDate,
+    ): Int =
+        dsl
+            .insertInto(AUTHORS)
             .set(AUTHORS.NAME, name)
             .set(AUTHORS.BIRTH_DATE, birthDate)
             .returning(AUTHORS.ID)
@@ -183,8 +190,13 @@ class AuthorFunctionalTest : FunctionalTestBase() {
             ?.get(AUTHORS.ID)
             ?: error("failed to insert author")
 
-    private fun insertBook(title: String, price: Int, publicationStatus: String): Int =
-        dsl.insertInto(BOOKS)
+    private fun insertBook(
+        title: String,
+        price: Int,
+        publicationStatus: String,
+    ): Int =
+        dsl
+            .insertInto(BOOKS)
             .set(BOOKS.TITLE, title)
             .set(BOOKS.PRICE, price)
             .set(BOOKS.PUBLICATION_STATUS, publicationStatus)
@@ -193,8 +205,12 @@ class AuthorFunctionalTest : FunctionalTestBase() {
             ?.get(BOOKS.ID)
             ?: error("failed to insert book")
 
-    private fun insertBookAuthor(bookId: Int, authorId: Int) {
-        dsl.insertInto(BOOK_AUTHORS)
+    private fun insertBookAuthor(
+        bookId: Int,
+        authorId: Int,
+    ) {
+        dsl
+            .insertInto(BOOK_AUTHORS)
             .set(BOOK_AUTHORS.BOOK_ID, bookId)
             .set(BOOK_AUTHORS.AUTHOR_ID, authorId)
             .execute()

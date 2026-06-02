@@ -17,11 +17,13 @@ class AuthorService(
     private val dsl: DSLContext,
 ) {
     fun create(request: CreateAuthorRequest): AuthorResponse {
-        val createdAuthor = dsl.insertInto(AUTHORS)
-            .set(AUTHORS.NAME, request.name.trim())
-            .set(AUTHORS.BIRTH_DATE, request.birthDate)
-            .returning(AUTHORS.ID, AUTHORS.NAME, AUTHORS.BIRTH_DATE)
-            .fetchOne() ?: throw IllegalStateException("failed to create author")
+        val createdAuthor =
+            dsl
+                .insertInto(AUTHORS)
+                .set(AUTHORS.NAME, request.name.trim())
+                .set(AUTHORS.BIRTH_DATE, request.birthDate)
+                .returning(AUTHORS.ID, AUTHORS.NAME, AUTHORS.BIRTH_DATE)
+                .fetchOne() ?: throw IllegalStateException("failed to create author")
 
         return AuthorResponse(
             id = createdAuthor.get(AUTHORS.ID)!!,
@@ -30,13 +32,18 @@ class AuthorService(
         )
     }
 
-    fun update(authorId: Int, request: UpdateAuthorRequest): AuthorResponse {
-        val updatedAuthor = dsl.update(AUTHORS)
-            .set(AUTHORS.NAME, request.name.trim())
-            .set(AUTHORS.BIRTH_DATE, request.birthDate)
-            .where(AUTHORS.ID.eq(authorId))
-            .returning(AUTHORS.ID, AUTHORS.NAME, AUTHORS.BIRTH_DATE)
-            .fetchOne() ?: throw NotFoundException("author not found: $authorId")
+    fun update(
+        authorId: Int,
+        request: UpdateAuthorRequest,
+    ): AuthorResponse {
+        val updatedAuthor =
+            dsl
+                .update(AUTHORS)
+                .set(AUTHORS.NAME, request.name.trim())
+                .set(AUTHORS.BIRTH_DATE, request.birthDate)
+                .where(AUTHORS.ID.eq(authorId))
+                .returning(AUTHORS.ID, AUTHORS.NAME, AUTHORS.BIRTH_DATE)
+                .fetchOne() ?: throw NotFoundException("author not found: $authorId")
 
         return AuthorResponse(
             id = updatedAuthor.get(AUTHORS.ID)!!,
@@ -48,23 +55,24 @@ class AuthorService(
     fun findBooksByAuthor(authorId: Int): List<BookResponse> {
         ensureAuthorExists(authorId)
 
-        return dsl.select(
-            BOOKS.ID,
-            BOOKS.TITLE,
-            BOOKS.PRICE,
-            BOOKS.PUBLICATION_STATUS,
-            BOOK_AUTHORS.AUTHOR_ID,
-        )
-            .from(BOOKS)
-            .join(BOOK_AUTHORS).on(BOOKS.ID.eq(BOOK_AUTHORS.BOOK_ID))
+        return dsl
+            .select(
+                BOOKS.ID,
+                BOOKS.TITLE,
+                BOOKS.PRICE,
+                BOOKS.PUBLICATION_STATUS,
+                BOOK_AUTHORS.AUTHOR_ID,
+            ).from(BOOKS)
+            .join(BOOK_AUTHORS)
+            .on(BOOKS.ID.eq(BOOK_AUTHORS.BOOK_ID))
             .where(
                 BOOKS.ID.`in`(
-                    dsl.select(BOOK_AUTHORS.BOOK_ID)
+                    dsl
+                        .select(BOOK_AUTHORS.BOOK_ID)
                         .from(BOOK_AUTHORS)
                         .where(BOOK_AUTHORS.AUTHOR_ID.eq(authorId)),
                 ),
-            )
-            .orderBy(BOOKS.ID.asc(), BOOK_AUTHORS.AUTHOR_ID.asc())
+            ).orderBy(BOOKS.ID.asc(), BOOK_AUTHORS.AUTHOR_ID.asc())
             .fetch()
             .groupBy { it.get(BOOKS.ID)!! }
             .values
@@ -81,11 +89,13 @@ class AuthorService(
     }
 
     private fun ensureAuthorExists(authorId: Int) {
-        val authorExists = dsl.fetchExists(
-            dsl.selectOne()
-                .from(AUTHORS)
-                .where(AUTHORS.ID.eq(authorId)),
-        )
+        val authorExists =
+            dsl.fetchExists(
+                dsl
+                    .selectOne()
+                    .from(AUTHORS)
+                    .where(AUTHORS.ID.eq(authorId)),
+            )
 
         if (!authorExists) {
             throw NotFoundException("author not found: $authorId")
