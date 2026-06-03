@@ -161,30 +161,28 @@ class BookFunctionalTest : FunctionalTestBase() {
     private fun insertAuthor(
         name: String,
         birthDate: LocalDate,
-    ): Int =
-        dsl
-            .insertInto(AUTHORS)
-            .set(AUTHORS.NAME, name)
-            .set(AUTHORS.BIRTH_DATE, birthDate)
-            .returning(AUTHORS.ID)
-            .fetchOne()
-            ?.get(AUTHORS.ID)
-            ?: error("failed to insert author")
+    ): Int = dsl
+        .insertInto(AUTHORS)
+        .set(AUTHORS.NAME, name)
+        .set(AUTHORS.BIRTH_DATE, birthDate)
+        .returning(AUTHORS.ID)
+        .fetchOne()
+        ?.get(AUTHORS.ID)
+        ?: error("failed to insert author")
 
     private fun insertBook(
         title: String,
         price: Int,
         publicationStatus: String,
-    ): Int =
-        dsl
-            .insertInto(BOOKS)
-            .set(BOOKS.TITLE, title)
-            .set(BOOKS.PRICE, price)
-            .set(BOOKS.PUBLICATION_STATUS, publicationStatus)
-            .returning(BOOKS.ID)
-            .fetchOne()
-            ?.get(BOOKS.ID)
-            ?: error("failed to insert book")
+    ): Int = dsl
+        .insertInto(BOOKS)
+        .set(BOOKS.TITLE, title)
+        .set(BOOKS.PRICE, price)
+        .set(BOOKS.PUBLICATION_STATUS, publicationStatus)
+        .returning(BOOKS.ID)
+        .fetchOne()
+        ?.get(BOOKS.ID)
+        ?: error("failed to insert book")
 
     private fun insertBookAuthor(
         bookId: Int,

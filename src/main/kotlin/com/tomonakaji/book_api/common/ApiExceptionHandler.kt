@@ -8,10 +8,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 @RestControllerAdvice
 class ApiExceptionHandler {
     @ExceptionHandler(BusinessRuleException::class)
-    fun handleBusinessRuleViolation(exception: BusinessRuleException): ProblemDetail =
-        ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, exception.message)
+    fun handleBusinessRuleViolation(exception: BusinessRuleException): ProblemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, exception.message)
 
     @ExceptionHandler(NotFoundException::class)
-    fun handleNotFound(exception: NotFoundException): ProblemDetail =
-        ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, exception.message)
+    fun handleNotFound(exception: NotFoundException): ProblemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, exception.message)
 }

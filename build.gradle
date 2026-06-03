@@ -4,7 +4,7 @@ plugins {
 	id 'org.springframework.boot' version '4.0.6'
 	id 'io.spring.dependency-management' version '1.1.7'
 	id 'org.jooq.jooq-codegen-gradle' version '3.19.34'
-	id 'org.jlleitschuh.gradle.ktlint' version '13.1.0'
+	id 'com.diffplug.spotless' version '7.2.1'
 }
 
 group = 'com.tomonakaji'
@@ -15,7 +15,6 @@ def dbPort = System.getenv('BOOK_API_DB_PORT')
 def dbName = System.getenv('BOOK_API_DB_NAME')
 def dbUser = System.getenv('BOOK_API_DB_USER')
 def dbPassword = System.getenv('BOOK_API_DB_PASSWORD')
-def generatedSrcPath = layout.buildDirectory.dir('generated-src').get().asFile.path
 
 java {
 	toolchain {
@@ -62,32 +61,25 @@ kotlin {
 	compilerOptions {
 		freeCompilerArgs.addAll '-Xjsr305=strict', '-Xannotation-default-target=param-property'
 	}
+	sourceSets.functionalTest.kotlin.srcDirs += 'src/functionalTest/kotlin'
 }
 
 tasks.named('test') {
 	useJUnitPlatform()
 }
 
-ktlint {
-	verbose = true
-	outputToConsole = true
-	additionalEditorconfig = [
-		'ktlint_standard_package-name': 'disabled',
-	]
-	filter {
-		exclude { entry ->
-			entry.file.path.contains("${generatedSrcPath}/")
-		}
+spotless {
+	kotlin {
+		target 'src/main/kotlin/**/*.kt', 'src/test/kotlin/**/*.kt', 'src/functionalTest/kotlin/**/*.kt'
+		ktlint().editorConfigOverride([
+			'ktlint_standard_package-name': 'disabled',
+		])
 	}
-}
-
-kotlin {
-	sourceSets.main.kotlin.srcDirs += 'build/generated-src/jooq'
-	sourceSets.functionalTest.kotlin.srcDirs += 'src/functionalTest/kotlin'
 }
 
 tasks.named('compileKotlin') {
 	dependsOn tasks.named('jooqCodegen')
+	source('build/generated-src/jooq')
 }
 
 tasks.register('functionalTest', Test) {
