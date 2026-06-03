@@ -19,7 +19,7 @@ class BookService(
     @Transactional
     fun create(request: CreateBookRequest): BookResponse {
         val authorIds = request.authorIds.distinct()
-        validateAuthorIds(request.authorIds, authorIds)
+        BookRules.validateAuthorIds(request.authorIds)
         validateAuthorsExist(authorIds)
 
         val createdBook =
@@ -54,7 +54,7 @@ class BookService(
         request: UpdateBookRequest,
     ): BookResponse {
         val authorIds = request.authorIds.distinct()
-        validateAuthorIds(request.authorIds, authorIds)
+        BookRules.validateAuthorIds(request.authorIds)
         validateAuthorsExist(authorIds)
 
         val currentBook =
@@ -64,7 +64,7 @@ class BookService(
                 .where(BOOKS.ID.eq(bookId))
                 .fetchOne() ?: throw NotFoundException("book not found: $bookId")
 
-        validatePublicationStatusTransition(
+        BookRules.validatePublicationStatusTransition(
             currentStatus = PublicationStatus.valueOf(currentBook.get(BOOKS.PUBLICATION_STATUS)!!),
             nextStatus = request.publicationStatus,
         )
@@ -101,15 +101,6 @@ class BookService(
         )
     }
 
-    private fun validateAuthorIds(
-        rawAuthorIds: List<Int>,
-        distinctAuthorIds: List<Int>,
-    ) {
-        if (rawAuthorIds.size != distinctAuthorIds.size) {
-            throw BusinessRuleException("duplicate authorIds")
-        }
-    }
-
     private fun validateAuthorsExist(authorIds: List<Int>) {
         val existingAuthorIds =
             dsl
@@ -121,15 +112,6 @@ class BookService(
         if (existingAuthorIds.size != authorIds.size) {
             val missingAuthorIds = authorIds - existingAuthorIds.toSet()
             throw BusinessRuleException("authors not found: $missingAuthorIds")
-        }
-    }
-
-    private fun validatePublicationStatusTransition(
-        currentStatus: PublicationStatus,
-        nextStatus: PublicationStatus,
-    ) {
-        if (currentStatus == PublicationStatus.PUBLISHED && nextStatus == PublicationStatus.UNPUBLISHED) {
-            throw BusinessRuleException("invalid publication status transition")
         }
     }
 }
