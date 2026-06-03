@@ -52,3 +52,59 @@ PostgreSQLが起動済みで、スキーマ作成後に実行すること。
 ```
 
 生成先は `build/generated-src/jooq` です。
+
+## API実行例
+
+### 著者登録
+
+```bash
+curl -i -X POST http://localhost:8080/v1/authors \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "name": "Suzuki Taro",
+    "birthDate": "1990-06-19"
+  }'
+```
+
+### 著者更新
+
+```bash
+curl -i -X PUT http://localhost:8080/v1/authors/1 \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "name": "Tanaka Jiro",
+    "birthDate": "1991-07-20"
+  }'
+```
+
+### 書籍登録
+
+```bash
+curl -i -X POST http://localhost:8080/v1/books \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "title": "Momotaro",
+    "price": 800,
+    "authorIds": [1, 2],
+    "publicationStatus": "PUBLISHED"
+  }'
+```
+
+### 書籍更新
+
+```bash
+curl -i -X PUT http://localhost:8080/v1/books/1 \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "title": "Kaguyahime",
+    "price": 900,
+    "authorIds": [3],
+    "publicationStatus": "PUBLISHED"
+  }'
+```
+
+### 著者に紐づく書籍一覧取得
+
+```bash
+curl -i http://localhost:8080/v1/authors/1/books
+```
